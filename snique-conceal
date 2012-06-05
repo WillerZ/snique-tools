@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'openssl';
+
+cipher = OpenSSL::Cipher.new('AES-128-CBC');
+
+cipher.encrypt;
+
+# Edit this key before using ehis script
+keyRaw = "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff";
+ivRaw = cipher.random_iv();
+STDOUT.write ivRaw.unpack('H*');
+cipher.key = keyRaw;
+cipher.padding = 0;
+
+message = ARGV.join(" ");
+message.strip!;
+if (message.respond_to?(:encode!))
+	message.encode!('UTF-8');
+end
+
+while (((message.bytesize + 8) % keyRaw.length) != 0)
+	message = message + ' ';
+end
+
+message = [0xFACEF00D,message.bytesize,message].pack("NNA*");
+
+output = cipher.update(message);
+output = output + cipher.final;
+
+STDOUT.write output.unpack('H*');
