@@ -3,16 +3,17 @@ header_remove('x-powered-by');
 header_remove('content-location');
 
 $message = file_get_contents('./.message');
-$etags = str_split($message, 32);
+$etags = str_split($message, 22);
 $num = $_GET["index"];
 $etag = $etags[intval($num)];
 $etag = str_replace("\n",'',$etag);
 srand(intval($num));
 $chars = 'abcdef0123456789';
-while (strlen($etag) < 32)
+while (strlen($etag) < 22)
 {
   $etag .= $chars[rand(0, 15)];
 }
+$etag = substr($etag,0,6)."-".substr($etag,6,4)."-".substr($etag,10);
 $if_none_match = isset($_SERVER['HTTP_IF_NONE_MATCH']) ?
 	 stripslashes($_SERVER['HTTP_IF_NONE_MATCH']) : 
 		 false ;
